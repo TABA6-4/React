@@ -51,7 +51,7 @@ const ImageSlider: React.FC = () => {
                             <p style={styles.boxText}>
                                 더 효율적인 하루를 만들어 드립니다.
                             </p>
-                            <button style={ styles.button }>측정 시작하기</button>
+                            <button style={ styles.button } onClick={() => navigate("/concentration")}>측정 시작하기</button>
                         </>
                     ) : (
                         <>

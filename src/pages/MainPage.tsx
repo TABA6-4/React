@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // 페이지 이동을 위해 추가
 
 const MainPage: React.FC = () => {
     const [isMeasuring, setIsMeasuring] = useState(false);
@@ -9,6 +10,8 @@ const MainPage: React.FC = () => {
     const plannerItems = ["마더텅 비문학 3지문", "수학 문제집 풀기", "영어 단어 암기"];
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const inputRef = useRef<HTMLInputElement>(null); // 입력 필드 참조
+    const navigate = useNavigate(); // 페이지 이동 훅 추가
+
 
     // 현재 날짜 가져오기
     const currentDate = new Date().toLocaleDateString("ko-KR", {
@@ -54,6 +57,20 @@ const MainPage: React.FC = () => {
     // 측정 시작
     const handleStartMeasurement = () => {
         if (selectedContent) setIsMeasuring(true);
+    };
+
+
+    // 측정 종료
+    // 측정 종료 및 페이지 이동
+    const handleStopMeasurement = () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            (videoRef.current.srcObject as MediaStream)
+                .getTracks()
+                .forEach((track) => track.stop());
+        }
+
+        // Result 페이지로 이동하며 state에 데이터 전달
+        navigate("/result", { state: { content: selectedContent, uptime } });
     };
 
 
@@ -173,6 +190,10 @@ const MainPage: React.FC = () => {
                         <h2 style={styles.contentText}>
                             {selectedContent}
                         </h2>
+
+                        <button style={styles.stopButton} onClick={handleStopMeasurement}>
+                            측정 종료
+                        </button>
                     </div>
                 </div>
             )}
