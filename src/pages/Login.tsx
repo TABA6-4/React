@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
-import jwtDecode from "jwt-decode"; // JWT 디코딩을 위해 추가
+import { jwtDecode } from "jwt-decode"; // JWT 디코딩을 위해 추가
 import axios from "axios"; // API 호출을 위해 추가
 
 const Login: React.FC = () => {
