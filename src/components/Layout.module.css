@@ -1,0 +1,31 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+.main {
+    margin-top: 80px;
+    padding: 2rem;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+}
+
+/* 반응형 디자인 추가 */
+@media (max-width: 768px) {
+    .main {
+        padding: 1rem; /* 작은 화면에서 패딩 축소 */
+    }
+}
+
+@media (max-width: 480px) {
+    .main {
+        flex-direction: column; /* 작은 화면에서는 컬럼 레이아웃 */
+        padding: 0.5rem;
+    }
+}
