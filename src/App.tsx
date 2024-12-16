@@ -7,6 +7,8 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Planner from "./pages/Planner";
 import Report from "./pages/Report";
+import MainPage from "./pages/MainPage";
+import Result from "./pages/Result"
 import Navbar from "./components/Navbar";
 
 const App: React.FC = () => {
@@ -21,6 +23,8 @@ const App: React.FC = () => {
                     <Route path="/login" element={<Login />} />
                     <Route path="/planner" element={<Planner />} />
                     <Route path="/report" element={<Report />} />
+                    <Route path="/result" element={<Result />} />
+                    <Route path="/concentration" element={<MainPage />} />
                 </Routes>
             </Router>
         </AuthProvider>

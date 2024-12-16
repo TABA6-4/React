@@ -104,8 +104,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: "5rem",
         width: "100%", // 너비를 화면에 맞게 설정
         maxWidth: "800px", // 최대 너비 지정
-        margin: "0 auto", // 가운데 정렬
         textAlign: "left",
+        marginBottom: "0",
     },
     container: {
         display: "flex",
