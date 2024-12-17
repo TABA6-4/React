@@ -9,7 +9,7 @@ const Planner: React.FC = () => {
         5: ["영어 단어 암기 50개", "과학 리포트 제출"],
         12: ["플젝 코드 리뷰", "팀 회의 준비"],
         15: ["운동 1시간", "책 읽기 30분"],
-        20: ["수학 문제집 풀기", "글쓰기 연습"],
+        20: ["TABA 6기 최종발표회", "다들", "수고 많으셨습니다"],
     });
 
     // 달력 렌더링 함수
@@ -88,11 +88,18 @@ const Planner: React.FC = () => {
                                 <input type="checkbox" />
                                 <span style={{ marginLeft: "0.5rem" }}>{task}</span>
                             </li>
+
                         ))
                     ) : (
                         <li>할 일이 없습니다.</li>
                     )}
                 </ul>
+                {/* 추가하기 버튼 */}
+                <button
+                    style={styles.addButton}
+                >
+                    추가하기
+                </button>
             </div>
         </div>
     );
@@ -165,6 +172,19 @@ const styles: { [key: string]: React.CSSProperties } = {
         backgroundColor: "#fff", // 배경색
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // 박스 그림자 추가
     },
+
+    addButton: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center", // 내용을 좌우 정렬
+        marginBottom: "1rem", // 항목 간 간격
+        padding: "0.75rem 1rem", // 내부 여백
+        border: "1px solid #ddd", // 테두리 스타일
+        borderRadius: "8px", // 둥근 모서리
+        backgroundColor: "#fff", // 배경색
+        width: "100%",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // 박스 그림자 추가
+    },
     dayHeader: {
         fontWeight: "bold",
         color: "#333",
@@ -180,7 +200,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         transition: "background-color 0.3s ease-in-out",
     },
     selectedDay: {
-        backgroundColor: "#4D9DE0", // 선택된 날짜 배경색
+        backgroundColor: "#4C8BF5", // 선택된 날짜 배경색
         color: "#fff", // 글자색
         fontWeight: "bold",
         width: "2.5rem", // 원의 가로 길이

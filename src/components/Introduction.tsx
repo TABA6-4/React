@@ -36,8 +36,8 @@ const Introduction: React.FC = () => {
         <div style={styles.container}>
             {/* About Section */}
 
-            <h2 style={styles.heading}>About Focus</h2>
             <section style={styles.section}>
+                <h2 style={styles.heading}>About Focus</h2>
                 <h3 style={styles.subHeading}>
                     2000년대 이후로 문제가 되고 있는 청년들의 집중력..!
                 </h3>
@@ -46,11 +46,16 @@ const Introduction: React.FC = () => {
 
             {/* 리포트 */}
             <section style={styles.section}>
-                <h3 style={styles.subHeading}>일일 리포트</h3>
-                <p style={styles.text}>매일 집중도를 측정하고 이를 일일 리포트로 기록해줍니다.</p>
+                <h2 style={styles.heading}>리포트</h2>
+                <p style={styles.text}>집중도 측정한 결과를 멋지게 보여줘요.</p>
                 <DailyReport/>
 
-                <h3 style={styles.subHeading}>주간 집중도 현황</h3>
+                <h3 style={styles.subHeading}>주간 리포트</h3>
+                <p style={styles.text}>주간 집중도를 그래프로 보여주고 맞춤형 솔루션을 제공해 줍니다.</p>
+                <StackedBarChart/>
+
+
+                <h3 style={styles.subHeading}>컨텐츠별 리포트</h3>
                 <p style={styles.text}>주간 집중도를 그래프로 보여주고 맞춤형 솔루션을 제공해 줍니다.</p>
                 <StackedBarChart/>
             </section>

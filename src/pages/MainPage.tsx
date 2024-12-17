@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // 페이지 이동을 위해 추가
+import Webcam from "react-webcam"; // react-webcam 라이브러리 사용
+import axios from "axios";
+import { useAuth } from "../contexts/AuthContext"; // AuthContext에서 유저 정보 가져옴
 
 const MainPage: React.FC = () => {
     const [isMeasuring, setIsMeasuring] = useState(false);
@@ -7,11 +10,17 @@ const MainPage: React.FC = () => {
     const [inputValue, setInputValue] = useState(""); // 직접 입력 값
     const [uptime, setUptime] = useState<number>(0); // 업타임 (초 단위)
     const [currentTime, setCurrentTime] = useState<string>(""); // 현재 시간
+    const [sessionId, setSessionId] = useState<number | null>(null); // sessionId 상태 저장
     const plannerItems = ["마더텅 비문학 3지문", "수학 문제집 풀기", "영어 단어 암기"];
+    const webcamRef = useRef<Webcam>(null); // 웹캠 참조
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const inputRef = useRef<HTMLInputElement>(null); // 입력 필드 참조
+    const socket = useRef<WebSocket | null>(null);
     const navigate = useNavigate(); // 페이지 이동 훅 추가
 
+    // AuthContext에서 user 정보 가져오기
+    const { user } = useAuth();
+    const userId = user?.userId;
 
     // 현재 날짜 가져오기
     const currentDate = new Date().toLocaleDateString("ko-KR", {
@@ -20,6 +29,68 @@ const MainPage: React.FC = () => {
         day: "numeric",
         weekday: "long",
     });
+
+    // API 요청 - 비디오 세션 시작
+    const startVideoSession = async () => {
+        try {
+            const response = await axios.post("http://3.38.191.196/api/video-session/start", {
+                user_id: userId,
+                title: selectedContent,
+            });
+            setSessionId(response.data.sessionId); // 세션 ID 저장
+            console.log("Session started:", response.data);
+            return response.data.sessionId; // 세션 ID 반환
+        } catch (error) {
+            console.error("Error starting session:", error);
+            alert("세션 시작에 실패했습니다. 다시 시도해주세요.");
+            throw error; // 에러를 다시 던져 호출자에서 처리
+        }
+    };
+
+    const endVideoSession = async () => {
+        try {
+            const response = await axios.post(
+                `http://3.38.191.196/api/video-session/end/${sessionId}`
+            );
+            console.log("Session Ended:", response.data);
+        } catch (error) {
+            console.error("Error ending session", error);
+            alert("Failed to end session. Try again.");
+            throw error;
+        }
+    };
+
+    const sendImagesToServer = () => {
+        const sendInterval = setInterval(() => {
+            if (webcamRef.current) {
+                const imageSrc = webcamRef.current.getScreenshot();
+                if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+                    const payload = {
+                        user_id: userId,
+                        title: selectedContent,
+                        image: imageSrc,
+                    };
+                    socket.current.send(JSON.stringify(payload));
+                    console.log("Image sent to server");
+                } else {
+                    console.warn("WebSocket not ready");
+                }
+            }
+        }, 1000); // 5초마다 전송
+
+        return () => clearInterval(sendInterval); // 정리 함수 반환
+    };
+
+    /// **웹소켓 시작 및 이미지 전송**
+    const startWebSocket = () => {
+        socket.current = new WebSocket("ws://3.38.191.196/image");
+        socket.current.onopen = () => {
+            console.log("WebSocket connected");
+            sendImagesToServer(); // 웹소켓 연결 후 이미지 전송 시작
+        };
+        socket.current.onerror = (error) => console.error("WebSocket error:", error);
+        socket.current.onclose = () => console.log("WebSocket disconnected");
+    };
 
     // 시간 및 업타임 업데이트
     useEffect(() => {
@@ -54,19 +125,36 @@ const MainPage: React.FC = () => {
         setSelectedContent(null); // 선택된 항목 해제
     };
 
+    // **측정 시작**
     // 측정 시작
-    const handleStartMeasurement = () => {
-        if (selectedContent) setIsMeasuring(true);
+    const handleStartMeasurement = async () => {
+        if (selectedContent) {
+            setIsMeasuring(true);
+            try {
+                const sessionId = await startVideoSession(); // 비디오 세션 시작 함수 호출
+                setSessionId(sessionId); // 세션 ID 저장
+                startWebSocket(); // 웹소켓 시작
+            } catch (error) {
+                console.error("Error in handleStartMeasurement:", error);
+                setIsMeasuring(false); // 실패 시 측정 상태를 해제
+            }
+        }
     };
 
-
-    // 측정 종료
     // 측정 종료 및 페이지 이동
     const handleStopMeasurement = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            (videoRef.current.srcObject as MediaStream)
-                .getTracks()
-                .forEach((track) => track.stop());
+        try {
+            if (videoRef.current && videoRef.current.srcObject) {
+                (videoRef.current.srcObject as MediaStream)
+                    .getTracks()
+                    .forEach((track) => track.stop());
+            }
+            if (socket.current) {
+                socket.current.close();
+            }
+            endVideoSession()
+        } catch (error) {
+            console.error("Error while stopping measurement:", error);
         }
 
         // Result 페이지로 이동하며 state에 데이터 전달

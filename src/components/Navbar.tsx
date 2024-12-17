@@ -1,12 +1,16 @@
 import React from "react";
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 
 const Navbar: React.FC = () => {
+    const { user, isAuthenticated, logoutUser } = useAuth();
+    const navigate = useNavigate();
 
-    const navigate = useNavigate(); // 네비게이션 함수 가져오기
-    const { isAuthenticated, logout } = useAuth();
+    const handleLogout = () => {
+        logoutUser(); // 상태 초기화 및 토큰 삭제
+        navigate("/login"); // 로그인 페이지로 이동
+    };
 
     console.log("isAuthenticated:", isAuthenticated); // 디버깅 로그 추가
 
@@ -26,16 +30,17 @@ const Navbar: React.FC = () => {
             <ul style={styles.navLinks}>
                 {isAuthenticated ? (
                     <>
+                        <p>Welcome, {user?.email || "Guest"}</p>
                         <li><Link to="/planner" style={styles.link}>플래너</Link></li>
                         <li><Link to="/report" style={styles.link}>리포트</Link></li>
                         <li><Link to="/profile" style={styles.link}>마이페이지</Link></li>
                         <li>
-                            <button onClick={logout} style={styles.button1}>로그아웃</button>
+                            <button onClick={handleLogout} style={styles.button1}>로그아웃</button>
                         </li>
                     </>
                 ) : (
                     <>
-                        <ul style={styles.navLinks}>
+                    <ul style={styles.navLinks}>
                             <li><Link to="/login" style={styles.link}>플래너</Link></li>
                             <li><Link to="/login" style={styles.link}>리포트</Link></li>
                             <li>

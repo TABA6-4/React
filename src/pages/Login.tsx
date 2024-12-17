@@ -1,18 +1,40 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 const Login: React.FC = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { loginUser } = useAuth();
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const handleSubmit = (e: React.FormEvent) => {
+
+
+    // 로그인 처리 함수
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // 여기에서 백엔드로 로그인 API 호출 후 성공하면 로그인 상태 변경
-        login();
-        // 성공적으로 로그인 후, 홈 화면으로 이동
-        navigate("/");
+
+        try {
+            const response = await axios.post("http://3.38.191.196/api/sign-in", {
+                email: email,
+                password: password
+            });
+
+            console.log("Login Response:", response);
+
+            const { accessToken, refreshToken, userId } = response.data;
+
+            // AuthContext의 loginUser 함수 호출
+            await loginUser(email, password);
+
+            // 홈 화면으로 이동
+            navigate("/");
+        } catch (error) {
+            alert("로그인 실패. 이메일과 비밀번호를 확인하세요.");
+            console.error("Login error:", error);
+        }
     };
+
     return (
         <div style={styles.container}>
             <form style={styles.form} onSubmit={handleSubmit}>
@@ -39,7 +61,11 @@ const Login: React.FC = () => {
                 <button type="submit" style={styles.button}>
                     로그인
                 </button>
-                <button  style={styles.button2}>
+                <button
+                    style={styles.button2}
+                    onClick={() => navigate("/register")} // 회원가입 페이지로 이동
+                    type="button"
+                >
                     회원가입
                 </button>
             </form>

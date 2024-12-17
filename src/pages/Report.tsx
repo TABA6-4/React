@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Bar, Pie } from "react-chartjs-2";
+import { Bar, Pie, Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
     CategoryScale,
     LinearScale,
     BarElement,
+    Title,
+    Tooltip,
+    Legend,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+// Chart.js 요소 및 플러그인 등록
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 const Report: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>("daily");
@@ -18,8 +20,8 @@ const Report: React.FC = () => {
     // 데이터 설정
     const dailyTasks = ["마더텅 비문학 3지문", "수학 자이스토리 2강", "영어 단어 암기"];
     const weeklyStats = {
-        averageFocus: "85%",
-        totalFocusTime: "40시간",
+        averageFocus: "67%",
+        totalFocusTime: "12시간 36분 20초",
         totalSessions: "10회",
     };
     const contentStats = {
@@ -30,23 +32,76 @@ const Report: React.FC = () => {
     };
 
     const pieData = {
-        labels: ["ON", "OFF"],
-        datasets: [{ data: [70, 30], backgroundColor: ["#4D9DE0", "#F4A261"] }],
+        labels: ["집중", "비집중", "졸음"],
+        datasets: [{ data: [66.5, 23, 10.5], backgroundColor: ["#4C8BF5", "#F5C150", "#E06464"] }],
     };
 
     const barData = {
         labels: ["월", "화", "수", "목", "금", "토", "일"],
         datasets: [
-            { label: "공부", data: [2, 3, 4, 5, 4, 3, 2], backgroundColor: "#4D9DE0" },
-            { label: "휴식", data: [1, 2, 2, 3, 2, 1, 1], backgroundColor: "#F4A261" },
+            { label: "집중", data: [2, 3, 4, 5, 4, 3, 2], backgroundColor: "#4C8BF5" },
+            { label: "비집중", data: [1, 2, 2, 3, 2, 1, 1], backgroundColor: "#F5C150" },
+            { label: "졸음", data: [1, 2, 0, 2, 0, 1, 1], backgroundColor: "#E06464" },
         ],
+    };
+
+    const lineData = {
+        labels: ["2분", "4분", "6분", "8분", "10분", "12분", "14분", "16분", "18분", "20분"],
+        datasets: [
+            {
+                label: "집중도", // 데이터셋의 레이블
+                data: [22.3, 50.6, 56.3, 48, 62.5, 66, 58, 54, 43.5, 57.8], // 데이터 값들
+                borderColor: "#4C8BF5", // 선 색상
+                backgroundColor: "rgba(75,192,192,0.2)", // 배경 색상
+                borderWidth: 2, // 선 두께
+                tension: 0.1, // 곡선의 부드러움 정도
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: "top",
+            },
+            title: {
+                display: true,
+                text: "",
+            },
+            datalabels: {
+                display: false, // 막대 위 라벨 숨김
+            },
+            tooltip: {
+                enabled: false, // 툴팁 비활성화
+            },
+        },
+        scales: {
+            y: {
+                min: 0, // Y축 최소값
+                max: 100, // Y축 최대값
+                ticks: {
+                    callback: function (value: number) {
+                        return `${value}%`; // Y축 라벨에 % 표시
+                    },
+                },
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: "시간", // X축 제목
+                },
+            },
+        },
     };
 
     return (
         <div style={styles.container}>
             {/* 왼쪽 컨테이너 */}
             <div style={styles.leftPanel}>
-                <h1 style={styles.header}>리포트 📊</h1>
+                <h1 style={styles.header}>리포트📊</h1>
                 <div style={styles.tabs}>
                     <button
                         style={{...styles.tab, ...(activeTab === "daily" && styles.activeTab)}}
@@ -72,42 +127,74 @@ const Report: React.FC = () => {
                 {activeTab === "daily" && (
                     <ul style={styles.list}>
                         {dailyTasks.map((task, idx) => (
-                            <li key={idx} style={styles.listItem}>{task}</li>
+                            <h3 key={idx} style={styles.listItem}>{task}</h3>
                         ))}
                     </ul>
                 )}
                 {activeTab === "weekly" && (
-                    <div>
-                        <p>평균 집중도: {weeklyStats.averageFocus}</p>
-                        <p>총 집중 시간: {weeklyStats.totalFocusTime}</p>
-                        <p>총 세션 시간: {weeklyStats.totalSessions}</p>
-                    </div>
+                    <ul style={styles.list}>
+                        <h3 style={styles.listItem}>평균 집중도: {weeklyStats.averageFocus}</h3>
+                        <h3 style={styles.listItem}>총 집중 시간: {weeklyStats.totalFocusTime}</h3>
+                        <h3 style={styles.listItem}>총 세션 수: {weeklyStats.totalSessions}</h3>
+                    </ul>
                 )}
                 {activeTab === "content" && (
-                    <div>
-                        <p>가장 오래 한 컨텐츠: {contentStats.longest}</p>
-                        <p>가장 집중한 컨텐츠: {contentStats.mostFocused}</p>
-                        <p>가장 짧게 한 컨텐츠: {contentStats.shortest}</p>
-                        <p>가장 집중 안 한 컨텐츠: {contentStats.leastFocused}</p>
-                    </div>
+                    <ul style={styles.list}>
+                        <h3 style={styles.listItem}>가장 오래 한 컨텐츠: {contentStats.longest}</h3>
+                        <h3 style={styles.listItem}>가장 집중한 컨텐츠: {contentStats.mostFocused}</h3>
+                        <h3 style={styles.listItem}>가장 짧게 한 컨텐츠: {contentStats.shortest}</h3>
+                        <h3 style={styles.listItem}>가장 집중 안 한 컨텐츠: {contentStats.leastFocused}</h3>
+                    </ul>
                 )}
             </div>
 
             {/* 오른쪽 컨테이너 */}
             <div style={styles.rightPanel}>
                 <div style={styles.controller}>
-                    {activeTab === "daily" ? "일 선택 컨트롤러" : activeTab === "weekly" ? "주 선택 컨트롤러" : "일 선택 컨트롤러"}
+                    {/* 탭별 컨트롤러 */}
+                    {activeTab === "daily" ? (
+                        <div style={styles.dateController}>
+                            <h2>
+                                2024년 12월 18일
+                            </h2>
+                        </div>
+                    ) : activeTab === "weekly" ? (
+                        <div style={styles.dateController}>
+                            <h2>
+                                2024년 12월 17일 ~ 2024년 12월 23일
+                            </h2>
+                        </div>
+                    ) : (
+                        <div style={styles.dateController}>
+                            {/* 기본 컨트롤러 */}
+                            <h2>
+                                대학영어 1 온라인강의 수강
+                            </h2>
+                        </div>
+                    )}
                 </div>
                 <div style={styles.chartContainer}>
                     {activeTab === "daily" &&
                         <Pie data={pieData} options={{responsive: true, maintainAspectRatio: false}}/>}
-                    {(activeTab === "weekly" || activeTab === "content") && (
+                    {activeTab === "weekly" && (
                         <Bar data={barData} options={{
+                            plugins: {
+                                datalabels: {
+                                    display: false, // 막대 위 라벨 숨김
+                                },
+                                tooltip: {
+                                    enabled: false, // 툴팁 비활성화
+                                },
+                            },
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {x: {stacked: true}, y: {stacked: true}}
-                        }}/>
-                    )}
+                        }}
+                        />)}
+                    {activeTab === "content" &&
+                        <div style={{ width: "80%", height: "400px", margin: "0 auto" }}>
+                            <Line  data={lineData} options={options}/>
+                        </div>}
                 </div>
             </div>
         </div>
@@ -169,7 +256,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         transition: "background-color 0.3s",
     },
     activeTab: {
-        backgroundColor: "#F4A261",
+        backgroundColor: "#4C8BF5",
         color: "#fff",
     },
     list: {
@@ -191,7 +278,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     chartContainer: {
         width: "100%", // 차트 너비를 패널에 꽉 채움
         height: "400px", // 차트 높이 크게 설정
-        marginTop: "1rem",
+        marginTop: 0,
+    },
+    monthControl: {
+        fontSize: "1.3rem",
+        display: "flex",
+        justifyContent: "flex-start", // 왼쪽 정렬
+        alignItems: "center", // 수직 정렬
+        gap: "1rem", // 버튼과 월 사이 간격
+        marginBottom: "1rem",
+        width: "100%", // 전체 너비 사용
+        textAlign: "left",
     },
 };
 

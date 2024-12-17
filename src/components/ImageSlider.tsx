@@ -47,7 +47,7 @@ const ImageSlider: React.FC = () => {
                 <div style={styles.rightBox}>
                     {isAuthenticated ? (
                         <>
-                            <h2 style={styles.boxTitle}>님의 오늘을 응원합니다</h2>
+                            <h2 style={styles.boxTitle}>4조님의 오늘을 응원합니다</h2>
                             <p style={styles.boxText}>
                                 더 효율적인 하루를 만들어 드립니다.
                             </p>
